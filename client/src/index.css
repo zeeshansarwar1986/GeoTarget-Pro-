@@ -1,0 +1,191 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #0F172A;
+  color: #F8FAFC;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1E293B;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748B;
+}
+
+.glass-card {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 16px;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #6366F1, #818CF8, #10B981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, #6366F1 0%, #4F46E5 50%, #7C3AED 100%);
+}
+
+.gradient-border {
+  position: relative;
+  background: #1E293B;
+  border-radius: 16px;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 17px;
+  background: linear-gradient(135deg, #6366F1, #10B981, #F59E0B);
+  z-index: -1;
+}
+
+.stat-card-hover {
+  transition: all 0.3s ease;
+}
+
+.stat-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+}
+
+@layer base {
+  :root[data-theme='dark-blue'] {
+    --bg-main: 15 23 42;
+    /* #0f172a */
+    --bg-card: 30 41 59;
+    /* #1e293b */
+    --bg-sidebar: 15 23 42;
+    --text-primary: 255 255 255;
+    --text-secondary: 148 163 184;
+    /* slate-400 */
+    --border-main: 51 65 85;
+    /* slate-700 */
+    --glass-bg: rgba(30, 41, 59, 0.7);
+  }
+
+  :root[data-theme='half-white'] {
+    --bg-main: 248 250 252;
+    /* slate-50 */
+    --bg-card: 255 255 255;
+    --bg-sidebar: 241 245 249;
+    /* slate-100 */
+    --text-primary: 15 23 42;
+    --text-secondary: 71 85 105;
+    /* slate-600 */
+    --border-main: 226 232 240;
+    /* slate-200 */
+    --glass-bg: rgba(255, 255, 255, 0.8);
+  }
+
+  :root[data-theme='white'] {
+    --bg-main: 255 255 255;
+    --bg-card: 255 255 255;
+    --bg-sidebar: 255 255 255;
+    --text-primary: 0 0 0;
+    --text-secondary: 51 65 85;
+    /* slate-700 */
+    --border-main: 241 245 249;
+    /* slate-100 */
+    --glass-bg: rgba(255, 255, 255, 0.9);
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+    @apply transition-colors duration-300;
+    background-color: rgb(var(--bg-main));
+    color: rgb(var(--text-primary));
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgb(var(--border-main) / 0.5);
+    @apply rounded-3xl shadow-xl transition-all duration-300;
+  }
+
+  .input-field {
+    background: rgb(var(--bg-card) / 0.5);
+    border: 1px solid rgb(var(--border-main));
+    color: rgb(var(--text-primary));
+    @apply w-full px-4 py-2.5 rounded-xl focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all;
+  }
+}
+
+.btn-primary {
+  @apply px-6 py-3 rounded-xl font-semibold text-white transition-all duration-300;
+  background: linear-gradient(135deg, #6366F1, #4F46E5);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6);
+}
+
+.btn-secondary {
+  @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300;
+  border: 2px solid #6366F1;
+  color: #818CF8;
+}
+
+.btn-secondary:hover {
+  background: rgba(99, 102, 241, 0.1);
+  transform: translateY(-2px);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #6366F1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.leaflet-container {
+  border-radius: 16px;
+  z-index: 1;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
