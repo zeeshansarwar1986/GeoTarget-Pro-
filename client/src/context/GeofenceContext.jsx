@@ -75,14 +75,28 @@ export function GeofenceProvider({ children }) {
     const [geofences, setGeofences] = useState([])
     const [selectedFence, setSelectedFence] = useState(null)
 
-    useEffect(() => {
-        const saved = localStorage.getItem('geotarget_fences')
-        if (saved) {
-            try { setGeofences(JSON.parse(saved)) } catch (e) { setGeofences(DEMO_GEOFENCES) }
-        } else {
-            setGeofences(DEMO_GEOFENCES)
-            localStorage.setItem('geotarget_fences', JSON.stringify(DEMO_GEOFENCES))
+    const getHeaders = () => {
+        const savedUser = localStorage.getItem('geotarget_user')
+        if (!savedUser) return { 'Content-Type': 'application/json' }
+        const { token } = JSON.parse(savedUser)
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
         }
+    }
+
+    useEffect(() => {
+        const fetchGeofences = async () => {
+            try {
+                const response = await fetch('/api/geofences', { headers: getHeaders() })
+                const result = await response.json()
+                if (result.success) setGeofences(result.data)
+                else setGeofences(DEMO_GEOFENCES)
+            } catch (error) {
+                setGeofences(DEMO_GEOFENCES)
+            }
+        }
+        fetchGeofences()
     }, [])
 
     const saveFences = (fences) => {
@@ -90,22 +104,57 @@ export function GeofenceProvider({ children }) {
         localStorage.setItem('geotarget_fences', JSON.stringify(fences))
     }
 
-    const addGeofence = (fence) => {
-        const newFence = { ...fence, id: 'gf-' + Date.now(), visitors: 0, notifications: 0, avgDwell: 0, createdAt: new Date().toISOString().split('T')[0] }
-        saveFences([...geofences, newFence])
+    const addGeofence = async (fence) => {
+        try {
+            const response = await fetch('/api/geofences', {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify(fence)
+            })
+            const result = await response.json()
+            if (result.success) setGeofences([...geofences, result.data])
+        } catch (error) {
+            console.error('Failed to add geofence:', error)
+        }
     }
 
-    const updateGeofence = (id, updates) => {
-        saveFences(geofences.map(f => f.id === id ? { ...f, ...updates } : f))
+    const updateGeofence = async (id, updates) => {
+        try {
+            const response = await fetch(`/api/geofences/${id}`, {
+                method: 'PUT',
+                headers: getHeaders(),
+                body: JSON.stringify(updates)
+            })
+            const result = await response.json()
+            if (result.success) {
+                setGeofences(geofences.map(f => f._id === id ? result.data : f))
+            }
+        } catch (error) {
+            console.error('Failed to update geofence:', error)
+        }
     }
 
-    const deleteGeofence = (id) => {
-        saveFences(geofences.filter(f => f.id !== id))
-        if (selectedFence?.id === id) setSelectedFence(null)
+    const deleteGeofence = async (id) => {
+        try {
+            const response = await fetch(`/api/geofences/${id}`, {
+                method: 'DELETE',
+                headers: getHeaders()
+            })
+            const result = await response.json()
+            if (result.success) {
+                setGeofences(geofences.filter(f => (f._id || f.id) !== id))
+                if (selectedFence?._id === id || selectedFence?.id === id) setSelectedFence(null)
+            }
+        } catch (error) {
+            console.error('Failed to delete geofence:', error)
+        }
     }
 
-    const toggleGeofence = (id) => {
-        saveFences(geofences.map(f => f.id === id ? { ...f, active: !f.active } : f))
+    const toggleGeofence = async (id) => {
+        const fence = geofences.find(f => (f._id || f.id) === id)
+        if (fence) {
+            updateGeofence(id, { active: !fence.active })
+        }
     }
 
     const stats = {

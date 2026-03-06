@@ -16,24 +16,42 @@ export function AuthProvider({ children }) {
         setLoading(false)
     }, [])
 
-    const login = (userData) => {
-        const data = { ...userData, token: 'jwt-demo-token-' + Date.now() }
-        setUser(data)
-        localStorage.setItem('geotarget_user', JSON.stringify(data))
-        return true
+    const login = async (credentials) => {
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(credentials)
+            })
+            const result = await response.json()
+            if (result.success) {
+                setUser(result.data)
+                localStorage.setItem('geotarget_user', JSON.stringify(result.data))
+                return { success: true }
+            }
+            return { success: false, error: result.error }
+        } catch (error) {
+            return { success: false, error: 'Server connection failed' }
+        }
     }
 
-    const signup = (userData) => {
-        const data = {
-            ...userData,
-            id: 'user-' + Date.now(),
-            token: 'jwt-demo-token-' + Date.now(),
-            plan: 'free',
-            createdAt: new Date().toISOString()
+    const signup = async (userData) => {
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            })
+            const result = await response.json()
+            if (result.success) {
+                setUser(result.data)
+                localStorage.setItem('geotarget_user', JSON.stringify(result.data))
+                return { success: true }
+            }
+            return { success: false, error: result.error }
+        } catch (error) {
+            return { success: false, error: 'Server connection failed' }
         }
-        setUser(data)
-        localStorage.setItem('geotarget_user', JSON.stringify(data))
-        return true
     }
 
     const logout = () => {
